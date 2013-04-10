@@ -1,5 +1,5 @@
 package pucp.wallace;
 
-public class UHNode {
-
+public class UHNode<T> {
+	
 }

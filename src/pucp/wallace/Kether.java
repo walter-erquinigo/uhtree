@@ -1,5 +1,5 @@
 package pucp.wallace;
 
-public class HashList {
+public class Kether {
 
 }
