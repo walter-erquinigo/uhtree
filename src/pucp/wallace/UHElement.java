@@ -3,10 +3,11 @@ package pucp.wallace;
 public class UHElement<T>{
 	private int count = 0;
 	private T value;
-	private int key;
+	private int hash;
+	private UHElement<T> next;
 	
 	public UHElement(int key, T value) {
-		this.key = key;
+		this.hash = key;
 		this.value = value;
 	}
 	
@@ -14,12 +15,18 @@ public class UHElement<T>{
 		count++;
 	}
 	
-	public void decay(int factor) {
-		count >>>= factor;
+	public void decay() {
+		if(count >= (1<<24))
+			count >>>= 4;
+		else if(count >= (1<<16))
+			count >>>= 3;
+		else if(count >= (1<<8))
+			count >>>= 2;
+		else count >>>= 1;
 	}
 	
-	public int getKey() {
-		return key;
+	public int getHash() {
+		return hash;
 	}
 	
 	public T getValue() {
@@ -30,5 +37,7 @@ public class UHElement<T>{
 		return value.equals(other.getValue());
 	}
 	
-	
+	public void setNext(UHElement<T> newElement) {
+		next = newElement;
+	}
 }
