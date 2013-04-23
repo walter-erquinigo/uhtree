@@ -1,28 +1,22 @@
 package pucp.wallace;
-// TO DELETE
-public class UHList<T> {
-	
-	private UHListNode<T> root;
-	
-	public UHList() {
-		root = null;
-	}
-	
-	public UHElement<T> findElement(T value) {
-		for (UHListNode node = root; node != null ; node = node.next) {
-			return null;
-		}
-		return null;
-	}
-	
-	
-	class UHListNode<K> {
-		UHListNode<K> next;
-		UHElement<K> element;
 
-		public UHListNode(UHElement<K> element) {
-			this.next = null;
-			this.element = element;
-		}
+import java.util.ArrayList;
+
+public class UHList<T> {
+	private ArrayList<UHElement<T>> list = new ArrayList<>();
+	
+	public UHList(T value) {
+		list.add(new UHElement<T>(value));
 	}
+	
+	public void addNewElement(T value) {
+		list.add(new UHElement<T>(value));
+	}
+	
+	public boolean search(T value) {
+		for(int i = 0; i < list.size(); i++)
+			if(list.get(i).getValue().equals(value)) return true;
+		return false;
+	}
+	
 }

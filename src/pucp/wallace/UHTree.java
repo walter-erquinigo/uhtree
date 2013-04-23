@@ -6,13 +6,13 @@ public class UHTree<T> {
 	public UHTree(int bits, int initLevels) {
 		root = new UHNode<T>(bits, initLevels);
 	}
+	
 	public UHTree(int bits) {
-		this(bits, 2);
+		this(bits, 0);
 	}
 	
 	public void insert(int hash, T value) {
-		UHElement<T> newNode = new UHElement<T>(hash, value);
-		root.insert(newNode);
+		root.insert(hash, value);
 	}
 	
 	public boolean delete(int hash, T value) {
