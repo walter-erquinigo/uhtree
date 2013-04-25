@@ -12,6 +12,10 @@ public class UHElement<T>{
 		count++;
 	}
 	
+	public int getCount() {
+		return count;
+	}
+	
 	public void decay() {
 		if(count >= (1<<24))
 			count >>>= 4;
@@ -28,6 +32,10 @@ public class UHElement<T>{
 
 	public boolean equals(UHElement<T> other) {
 		return value.equals(other.getValue());
+	}
+	
+	public boolean equals(Object other) {
+		return value.equals(other);
 	}
 	
 }

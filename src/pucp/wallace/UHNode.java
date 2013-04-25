@@ -1,51 +1,101 @@
 package pucp.wallace;
 
-public class UHNode<T> {
-	// Precondition: 	if maxHash != minHash => minHash is not sent to children, whilst every other has is sent.
-	//					else => nothing is sent to children.
-	
-	private final int halfBits;
-	private final int mask;
-	private int size;
-	
-	private UHElement<T> bestElement;
-	private UHNode<T>[] children;
-	private UHList<T> elements;
-	
-	@SuppressWarnings("unchecked")
-	public UHNode(int bits, int initLevels) {
-		this.halfBits = bits >>> 1;
-		this.mask = (1 << halfBits) - 1;
-		this.size = 1 << ((bits + 1) >>> 1);
-		children = new UHNode[size];
-		if (initLevels > 0) {
-			for (int i = 0; i < size; i++)
-				children[i] = new UHNode<T>(halfBits, initLevels - 1);
-		}
-	}
-	
-	public void insert(int hash, T value) {
-		if (size > 1) {
-			int index = hash >>> halfBits;
-			if (children[index] == null) children[index] = new UHNode<>(halfBits, 0);
-			children[index].insert(hash & mask, value);
-		} else {
-			if (elements == null) elements = new UHList<T>(value);
-			else elements.addNewElement(value);
-		}
-	}
-	
-	public boolean search(int hash, T value) {
-		if (size == 1) return elements == null ? false : elements.search(value);
-		else {
-			int index = hash >>> halfBits;
-			if (children[index] == null) return false;
-			else return children[index].search(hash & mask, value);
-		}
-	}
+import java.util.Hashtable;
 
-	public boolean delete(int hash, T value) {
-		return false;
+public class UHNode<T> {
+	private int min;
+	private UHList<T> minElements;
+	private boolean isEmpty;
+	private int order;
+	private int shift;
+	private int max;
+	private UHNode<Integer> HQ;
+	private Hashtable<Integer, UHNode<T>> LQ;
+	
+	public UHNode(int order) {
+		isEmpty = true;
+		this.order = order;
+		shift = 1 << (order - 1);
+		max = (int)((1L << (1 << order)) - 1);
+		HQ = new UHNode<Integer>(order - 1);
+		LQ = new Hashtable<>();
+	}
+	
+	public boolean isEmpty() {
+		return isEmpty;
+	}
+	
+	public int getMinHash() {
+		return min;
+	}
+	
+	public UHList<T> getMinElements() {
+		return minElements;
+	}
+	
+	public int compareUnsignedInt(int a, int b) {
+		if (((a ^ b) << 31) == 0) {
+			return a - b;
+		}
+		if (a < 0) {
+			return 1;
+		}
+		return -1;
+	}
+	
+	public void add(int x, T value) {
+		if(isEmpty || min == x){
+			min = x;
+			minElements = new UHList<T>(value);
+		} else {
+			if (compareUnsignedInt(x, min) < 0) {
+				int aux = x;
+				x = min;
+				min = aux;
+			}
+			int H = x >>> shift;
+			int L = x ^ (H << shift);
+			if (!LQ.contains(H)) {
+				HQ.add(H, H);
+				LQ.put(H, new UHNode<T>(order - 1));
+			}
+			LQ.get(H).add(L, value);
+		}
+		isEmpty = false;
+	}
+	
+	public boolean remove(int x, T value) {
+		if (isEmpty()) return false;
+		int H, L;
+		if (min == x) {
+			boolean success = minElements.remove(value);
+			if (!success) {
+				return false;
+			} else {
+				if (HQ.isEmpty()) {
+					isEmpty = true;
+					return true;
+				} else {
+					H = HQ.getMinHash();
+					L = LQ.get(H).getMinHash();
+					minElements = LQ.get(H).getMinElements();
+					x = min = (H << shift) + L;
+				}
+			}
+		} else {
+			H = x >>> shift;
+			L = x ^ (x << shift);		
+		}
+		boolean success = false;
+		if (LQ.contains(H)) {
+			success = LQ.get(H).remove(L, value);
+			if (LQ.get(H).isEmpty()) {
+				LQ.remove(H);
+				HQ.remove(H, H);
+			}
+		}
+		
+		return success;
 	}
 	
 }
