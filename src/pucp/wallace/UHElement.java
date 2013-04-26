@@ -1,10 +1,10 @@
 package pucp.wallace;
 
-public class UHElement<T>{
+public class UHElement{
 	private int count = 0;
-	private T value;
+	private Object value;
 	
-	public UHElement(T value) {
+	public UHElement(Object value) {
 		this.value = value;
 	}
 	
@@ -26,16 +26,22 @@ public class UHElement<T>{
 		else count >>>= 1;
 	}
 	
-	public T getValue() {
+	public Object getValue() {
 		return value;
 	}
-
-	public boolean equals(UHElement<T> other) {
-		return value.equals(other.getValue());
+	
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof UHElement) {
+			UHElement uhElement = (UHElement)other;
+			return value.equals(uhElement.getValue());
+		} else
+			return value.equals(other);
 	}
 	
-	public boolean equals(Object other) {
-		return value.equals(other);
+	@Override
+	public int hashCode() {
+		return value.hashCode();
 	}
 	
 }

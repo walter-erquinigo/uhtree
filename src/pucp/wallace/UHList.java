@@ -4,30 +4,35 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
-public class UHList<T> {
-	private Set<UHElement<T>> set = Collections.newSetFromMap(new HashMap<UHElement<T>, Boolean>());
-	//private UHElement<T> best;
+public class UHList {
+	private Set<UHElement> set = Collections.newSetFromMap(new HashMap<UHElement, Boolean>());
 	
-	public UHList(T value) {
-		set.add(/*best = */new UHElement<T>(value));
+	public UHList() {
 	}
-	
-	public void addNewElement(T value) {
-		UHElement<T> element = new UHElement<T>(value);
-		//if (set.isEmpty()) best = element;
-		set.add(element);
-	}
-	
 
-	/*public UHElement<T> getBest(){
-		return best;
-	}*/
+	public UHList(Object value) {
+		addNewElement(value);
+	}
 	
-	public boolean remove(T value) {
-		boolean success = set.remove(new UHElement<T>(value));
-		/*if (best != null && best.equals(value)) {
-			best = null;
-		}*/
+	public void addNewElement(Object value) {
+		if(value instanceof UHList) {
+			set.addAll(((UHList)value).set);
+		} else {
+			set.add(new UHElement(value));
+		}
+	}
+	
+	public boolean isEmpty() {
+		return set.isEmpty();
+	}
+	
+	public Set getSet(){
+		return set;
+	}
+	
+	public boolean remove(Object value) {
+		assert !(value instanceof UHList);
+		boolean success = set.remove(new UHElement(value));
 		return success;
 	}
 	
