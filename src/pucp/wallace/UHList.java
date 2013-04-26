@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class UHList {
-	private Set<UHElement> set = Collections.newSetFromMap(new HashMap<UHElement, Boolean>());
+	private Set<UHElement> set = Collections.newSetFromMap(new HashMap<UHElement, Boolean>(2));
 	
 	public UHList() {
 	}
@@ -22,11 +22,15 @@ public class UHList {
 		}
 	}
 	
+	public boolean contains(Object value) {
+		return set.contains(new UHElement(value));
+	}
+	
 	public boolean isEmpty() {
 		return set.isEmpty();
 	}
 	
-	public Set getSet(){
+	public Set<UHElement> getSet(){
 		return set;
 	}
 	

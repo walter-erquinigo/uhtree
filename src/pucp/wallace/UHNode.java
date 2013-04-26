@@ -77,6 +77,23 @@ public class UHNode extends IntegerHeap{
 		minCheck();
 	}
 	
+	public boolean contains(int x, Object value) {
+		rangeCheck(x);
+		if(isEmpty()) {
+			return false;
+		} else if (min == x) {
+			return minElements.contains(value);
+		} else {
+			int H = x >>> shift;
+			int L = x ^ (H << shift);		
+			if (!LQ.containsKey(H)) {
+				return false;
+			} else {
+				return LQ.get(H).contains(L, value);
+			}
+		}
+	}
+	
 	public boolean remove(int x, Object value) {
 		rangeCheck(x);
 		if (isEmpty()) return false;
@@ -109,7 +126,6 @@ public class UHNode extends IntegerHeap{
 						L = LQ.get(H).getMinHash();
 						value = minElements = LQ.get(H).getMinElements();
 						min = (H << shift) + L;
-						//assert minElements.getSet().contains(o)
 					}
 				}
 			}
