@@ -11,6 +11,7 @@ public class UHNode extends IntegerHeap{
 	private int max;
 	private IntegerHeap HQ;
 	private Hashtable<Integer, UHNode> LQ;
+	private UHElement best = null;
 	
 	public UHNode(int order) {
 		isEmpty = true;
@@ -36,6 +37,9 @@ public class UHNode extends IntegerHeap{
 	}
 	
 	public boolean isEmpty() {
+		if (isEmpty) {
+			assert best ==  null;
+		}
 		return isEmpty;
 	}
 	
@@ -77,25 +81,40 @@ public class UHNode extends IntegerHeap{
 		minCheck();
 	}
 	
-	public boolean contains(int x, Object value) {
+	public void updateBest(UHElement candidate) {
+		if (best == null || candidate.getCount() > best.getCount()) {
+			best = candidate;
+		}
+	}
+	
+	public boolean contains(int x, Object value, UHNode parent) {
+		if (best != null && best.equals(value)) {
+			best.incr();
+			if (parent != null){
+				parent.updateBest(best);
+			}
+			return true;
+		}
 		rangeCheck(x);
 		if(isEmpty()) {
 			return false;
 		} else if (min == x) {
-			return minElements.contains(value);
+			return minElements.contains(value, this);
 		} else {
 			int H = x >>> shift;
 			int L = x ^ (H << shift);		
 			if (!LQ.containsKey(H)) {
 				return false;
 			} else {
-				return LQ.get(H).contains(L, value);
+				return LQ.get(H).contains(L, value, this);
 			}
 		}
 	}
 	
 	public boolean remove(int x, Object value) {
 		rangeCheck(x);
+		if (best != null && best.equals(value)) best = null;
+		
 		if (isEmpty()) return false;
 		int H, L;
 		if (min == x) {
@@ -103,6 +122,7 @@ public class UHNode extends IntegerHeap{
 			if (value instanceof UHList) {
 				assert ((UHList) value).getSet().equals(minElements.getSet());
 				minElements = new UHList();
+				best = null;
 				success = true;
 			} else {
 				success = minElements.remove(value);

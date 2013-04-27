@@ -1,11 +1,10 @@
 package pucp.wallace;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Set;
 
 public class UHList {
-	private Set<UHElement> set = Collections.newSetFromMap(new HashMap<UHElement, Boolean>(2));
+	private HashMap<UHElement, UHElement> set = new HashMap<>(2);
+	private UHElement best = null;
 	
 	public UHList() {
 	}
@@ -16,27 +15,39 @@ public class UHList {
 	
 	public void addNewElement(Object value) {
 		if(value instanceof UHList) {
-			set.addAll(((UHList)value).set);
+			set.putAll(((UHList)value).set);
 		} else {
-			set.add(new UHElement(value));
+			UHElement newElement = new UHElement(value);
+			set.put(newElement, newElement);
 		}
 	}
 	
-	public boolean contains(Object value) {
-		return set.contains(new UHElement(value));
+	public boolean contains(Object value, UHNode uhNode) {
+		UHElement element = set.get(new UHElement(value));
+		if (element == null) {
+			return false;
+		} else {
+			element.incr();
+			if (best == null || best.getCount() < element.getCount()) {
+				best = element;
+			}
+			uhNode.updateBest(best);
+			return true;
+		}
 	}
 	
 	public boolean isEmpty() {
 		return set.isEmpty();
 	}
 	
-	public Set<UHElement> getSet(){
+	public HashMap<UHElement, UHElement> getSet(){
 		return set;
 	}
 	
 	public boolean remove(Object value) {
 		assert !(value instanceof UHList);
-		boolean success = set.remove(new UHElement(value));
+		boolean success = set.remove(new UHElement(value)) != null;
+		if (success && value.equals(best)) best = null;
 		return success;
 	}
 	

@@ -3,7 +3,7 @@ package pucp.wallace;
 public class UHElement{
 	private int count = 0;
 	private Object value;
-	
+
 	public UHElement(Object value) {
 		this.value = value;
 	}
