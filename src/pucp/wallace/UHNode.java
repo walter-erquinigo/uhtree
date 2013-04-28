@@ -1,6 +1,7 @@
 package pucp.wallace;
 
 import java.util.Hashtable;
+import java.util.TreeMap;
 
 public class UHNode extends IntegerHeap{
 	private int min;
@@ -10,7 +11,7 @@ public class UHNode extends IntegerHeap{
 	private int shift;
 	private int max;
 	private IntegerHeap HQ;
-	private Hashtable<Integer, UHNode> LQ;
+	private TreeMap<Integer, UHNode> LQ;
 	private UHElement best = null;
 	
 	public UHNode(int order) {
@@ -20,7 +21,7 @@ public class UHNode extends IntegerHeap{
 		max = (int)((1L << (1 << order)) - 1);
 		minElements = new UHList();
 		HQ = UHTree.getNewIntegerHeap(order - 1);
-		LQ = new Hashtable<>();
+		LQ = new TreeMap<>();
 	}
 	
 	private void rangeCheck(int x) {
@@ -53,32 +54,40 @@ public class UHNode extends IntegerHeap{
 		return minElements;
 	}
 	
-	public int compareUnsignedInt(int a, int b) {
+	public static int compareUnsignedInt(int a, int b) {
 		  long val = (a & 0xffffffffL) - (b & 0xffffffffL);
 		  return val < 0 ? -1 : val > 0 ? 1 : 0;
 	}
 	
 	public void add(int x, Object value) {
-		rangeCheck(x);
-		if(isEmpty() || min == x){
-			min = x;
-			minElements.addNewElement(value);
-			isEmpty = false;
-		} else {
-			if (compareUnsignedInt(x, min) < 0) {
-				int aux = min; min = x; x = aux;
-				Object aux2 = minElements; minElements = new UHList(value); value = aux2; 
+		UHNode node = this;
+		int H, L;
+		while (true) {
+			node.rangeCheck(x);
+			if(node.isEmpty() || node.min == x){
+				node.min = x;
+				node.minElements.addNewElement(value);
+				node.isEmpty = false;
+				return;
+			} else {
+				if (compareUnsignedInt(x, node.min) < 0) {
+					int aux = node.min; node.min = x; x = aux;
+					Object aux2 = node.minElements; node.minElements = new UHList(value); value = aux2; 
+				}
+				assert node.min != x;
+				H = x >>> node.shift;
+				L = x ^ (H << node.shift);
+				UHNode child = node.LQ.get(H);
+				if (child == null) {
+					node.HQ.add(H);
+					child = new UHNode(order - 1);
+					node.LQ.put(H, child);
+				}
+				node = child;
+				x = L;
 			}
-			assert min != x;
-			int H = x >>> shift;
-			int L = x ^ (H << shift);
-			if (!LQ.containsKey(H)) {
-				HQ.add(H);
-				LQ.put(H, new UHNode(order - 1));
-			}
-			LQ.get(H).add(L, value);
+			node.minCheck();
 		}
-		minCheck();
 	}
 	
 	public void updateBest(UHElement candidate) {
@@ -88,25 +97,32 @@ public class UHNode extends IntegerHeap{
 	}
 	
 	public boolean contains(int x, Object value, UHNode parent) {
-		if (best != null && best.equals(value)) {
-			best.incr();
-			if (parent != null){
-				parent.updateBest(best);
+		UHNode node = this;
+		int H, L;
+		while(true) {
+			if (node.best != null && node.best.equals(value)) {
+				node.best.incr();
+				if (parent != null){
+					parent.updateBest(node.best);
+				}
+				return true;
 			}
-			return true;
-		}
-		rangeCheck(x);
-		if(isEmpty()) {
-			return false;
-		} else if (min == x) {
-			return minElements.contains(value, this);
-		} else {
-			int H = x >>> shift;
-			int L = x ^ (H << shift);		
-			if (!LQ.containsKey(H)) {
+			node.rangeCheck(x);
+			if(node.isEmpty()) {
 				return false;
+			} else if (node.min == x) {
+				return node.minElements.contains(value, this);
 			} else {
-				return LQ.get(H).contains(L, value, this);
+				H = x >>> node.shift;
+				L = x ^ (H << node.shift);		
+				UHNode child = node.LQ.get(H);
+				if (child == null) {
+					return false;
+				} else {
+					parent = node;
+					node = child;
+					x = L;
+				}
 			}
 		}
 	}
@@ -143,8 +159,9 @@ public class UHNode extends IntegerHeap{
 					} else {
 						minCheck();
 						H = HQ.getMinHash();
-						L = LQ.get(H).getMinHash();
-						value = minElements = LQ.get(H).getMinElements();
+						UHNode child = LQ.get(H);
+						L = child.getMinHash();
+						value = minElements = child.getMinElements();
 						min = (H << shift) + L;
 					}
 				}
@@ -154,9 +171,10 @@ public class UHNode extends IntegerHeap{
 			L = x ^ (H << shift);		
 		}
 		boolean success = false;
-		if (LQ.containsKey(H)) {
-			success = LQ.get(H).remove(L, value);
-			if (LQ.get(H).isEmpty()) {
+		UHNode child = LQ.get(H);
+		if (child != null) {
+			success = child.remove(L, value);
+			if (child.isEmpty()) {
 				LQ.remove(H);
 				HQ.remove(H, H);
 			}

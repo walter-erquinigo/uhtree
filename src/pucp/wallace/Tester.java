@@ -22,8 +22,9 @@ public class Tester {
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		RandomDistribution.Zipf zipf = new RandomDistribution.Zipf(new Random(), 0, 10000, 1/0.9);
-		RandomDistribution.Zipf rand = new RandomDistribution.Zipf(new Random(), 0, 3, 1/0.98);
+		Random random = new Random(0);
+		RandomDistribution.Zipf zipf = new RandomDistribution.Zipf(random, 0, 10000, 1/0.9);
+		RandomDistribution.Zipf rand = new RandomDistribution.Zipf(random, 0, 3, 1/0.98);
 		
 		int bits = 4;
 		UHNode tree = new UHNode(bits);
@@ -32,7 +33,7 @@ public class Tester {
 		// 107, 104, 0
 		long dif1 = 0, dif2 = 0, t1 = 0, t2 = 0;
 		long tt1 = System.nanoTime();
-		for(int i = 0; i < 2000; i++){
+		for(int i = 0; i < 20000; i++){
 			System.out.println("CASE: " + (i + 1));
 			System.out.println("EMPTINESS: " + tree.isEmpty() + " " + auxTree.isEmpty());
 			assert tree.isEmpty() == auxTree.isEmpty();

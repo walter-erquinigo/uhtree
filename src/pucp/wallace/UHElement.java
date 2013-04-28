@@ -1,6 +1,6 @@
 package pucp.wallace;
 
-public class UHElement{
+public class UHElement {
 	private int count = 0;
 	private Object value;
 
@@ -43,5 +43,4 @@ public class UHElement{
 	public int hashCode() {
 		return value.hashCode();
 	}
-	
 }
