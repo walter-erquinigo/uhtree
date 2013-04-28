@@ -33,7 +33,7 @@ public class Tester {
 		// 107, 104, 0
 		long dif1 = 0, dif2 = 0, t1 = 0, t2 = 0;
 		long tt1 = System.nanoTime();
-		for(int i = 0; i < 20000; i++){
+		for(int i = 0; i < 100000; i++){
 			System.out.println("CASE: " + (i + 1));
 			System.out.println("EMPTINESS: " + tree.isEmpty() + " " + auxTree.isEmpty());
 			assert tree.isEmpty() == auxTree.isEmpty();

@@ -11,7 +11,7 @@ public class UHNode extends IntegerHeap{
 	private int shift;
 	private int max;
 	private IntegerHeap HQ;
-	private TreeMap<Integer, UHNode> LQ;
+	private UHNode[] LQ;
 	private UHElement best = null;
 	
 	public UHNode(int order) {
@@ -21,21 +21,21 @@ public class UHNode extends IntegerHeap{
 		max = (int)((1L << (1 << order)) - 1);
 		minElements = new UHList();
 		HQ = UHTree.getNewIntegerHeap(order - 1);
-		LQ = new TreeMap<>();
+		LQ = new UHNode[max + 1];
 	}
 	
-	private void rangeCheck(int x) {
+	/*private void rangeCheck(int x) {
 		assert compareUnsignedInt(x, max) <= 0;
-	}
+	}*/
 	
-	private void minCheck() {
+	/*private void minCheck() {
 		if (!HQ.isEmpty()) {
 			int H = HQ.getMinHash();
-			int L = LQ.get(H).getMinHash();
+			int L = LQ[H].getMinHash();
 			int x = (H << shift) + L;
 			assert x != min;
 		}
-	}
+	}*/
 	
 	public boolean isEmpty() {
 		if (isEmpty) {
@@ -63,7 +63,7 @@ public class UHNode extends IntegerHeap{
 		UHNode node = this;
 		int H, L;
 		while (true) {
-			node.rangeCheck(x);
+			//node.rangeCheck(x);
 			if(node.isEmpty() || node.min == x){
 				node.min = x;
 				node.minElements.addNewElement(value);
@@ -77,16 +77,16 @@ public class UHNode extends IntegerHeap{
 				assert node.min != x;
 				H = x >>> node.shift;
 				L = x ^ (H << node.shift);
-				UHNode child = node.LQ.get(H);
+				UHNode child = node.LQ[H];
 				if (child == null) {
 					node.HQ.add(H);
 					child = new UHNode(order - 1);
-					node.LQ.put(H, child);
+					node.LQ[H] = child;
 				}
 				node = child;
 				x = L;
 			}
-			node.minCheck();
+			//node.minCheck();
 		}
 	}
 	
@@ -107,7 +107,7 @@ public class UHNode extends IntegerHeap{
 				}
 				return true;
 			}
-			node.rangeCheck(x);
+			//node.rangeCheck(x);
 			if(node.isEmpty()) {
 				return false;
 			} else if (node.min == x) {
@@ -115,7 +115,7 @@ public class UHNode extends IntegerHeap{
 			} else {
 				H = x >>> node.shift;
 				L = x ^ (H << node.shift);		
-				UHNode child = node.LQ.get(H);
+				UHNode child = node.LQ[H];
 				if (child == null) {
 					return false;
 				} else {
@@ -128,7 +128,7 @@ public class UHNode extends IntegerHeap{
 	}
 	
 	public boolean remove(int x, Object value) {
-		rangeCheck(x);
+		//rangeCheck(x);
 		if (best != null && best.equals(value)) best = null;
 		
 		if (isEmpty()) return false;
@@ -145,21 +145,21 @@ public class UHNode extends IntegerHeap{
 			}
 			if (!success) {
 				assert false;
-				minCheck();
+			//	minCheck();
 				return false;
 			} else {
 				if(!minElements.isEmpty()) {
-					minCheck();
+				//	minCheck();
 					return true;
 				} else {
 					if (HQ.isEmpty()) {
 						isEmpty = true;
-						minCheck();
+					//	minCheck();
 						return true;
 					} else {
-						minCheck();
+					//	minCheck();
 						H = HQ.getMinHash();
-						UHNode child = LQ.get(H);
+						UHNode child = LQ[H];
 						L = child.getMinHash();
 						value = minElements = child.getMinElements();
 						min = (H << shift) + L;
@@ -171,15 +171,15 @@ public class UHNode extends IntegerHeap{
 			L = x ^ (H << shift);		
 		}
 		boolean success = false;
-		UHNode child = LQ.get(H);
+		UHNode child = LQ[H];
 		if (child != null) {
 			success = child.remove(L, value);
 			if (child.isEmpty()) {
-				LQ.remove(H);
+				LQ[H] = null;
 				HQ.remove(H, H);
 			}
 		}
-		minCheck();
+		//minCheck();
 		return success;
 	}
 	
