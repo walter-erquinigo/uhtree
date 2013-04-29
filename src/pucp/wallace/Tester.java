@@ -27,7 +27,7 @@ public class Tester {
 		RandomDistribution.Zipf rand = new RandomDistribution.Zipf(random, 0, 3, 1/0.98);
 		
 		int bits = 4;
-		UHNode tree = new UHNode(bits);
+		UHTree tree = UHTreeCreator.getNewUHTree(bits);
 		TreeSet<Integer> auxTree = new TreeSet<>();
 		Scanner in = new Scanner(System.in);
 		// 107, 104, 0
@@ -67,16 +67,16 @@ public class Tester {
 			} else if (op == 'S') {
 				int element = zipf.nextInt();
 				int hash = getHash(element, bits);
-				System.out.println(tree.contains(hash, element, null));
+				System.out.println(tree.contains(hash, element));
 					t1 = System.nanoTime();
-					tree.contains(hash, element, null);
+					tree.contains(hash, element);
 					t2 = System.nanoTime();
 				dif1 += t2 - t1;
 					t1 = System.nanoTime();
 					auxTree.contains(element);
 					t2 = System.nanoTime();
 				dif2 += t2 - t1;
-				assert tree.contains(hash, element, null) == auxTree.contains(element);
+				assert tree.contains(hash, element) == auxTree.contains(element);
 			}
 		}
 		long tt2 = System.nanoTime();
