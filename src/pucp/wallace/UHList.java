@@ -1,9 +1,9 @@
 package pucp.wallace;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UHList {
-	private HashMap<UHElement, UHElement> set = new HashMap<>(2);
+	private ConcurrentHashMap<UHElement, UHElement> set = new ConcurrentHashMap<>(2);
 	private UHElement best = null;
 	
 	public UHList() {
@@ -40,7 +40,7 @@ public class UHList {
 		return set.isEmpty();
 	}
 	
-	public HashMap<UHElement, UHElement> getSet(){
+	public ConcurrentHashMap<UHElement, UHElement> getSet(){
 		return set;
 	}
 	

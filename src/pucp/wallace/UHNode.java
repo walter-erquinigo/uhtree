@@ -1,7 +1,5 @@
 package pucp.wallace;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 public class UHNode extends IntegerHeap{
 	private int min;
 	private UHList minElements;
@@ -12,7 +10,6 @@ public class UHNode extends IntegerHeap{
 	private IntegerHeap HQ;
 	private UHNode[] LQ;
 	private UHElement best = null;
-	private ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 	
 	public UHNode(int order) {
 		isEmpty = true;
@@ -24,49 +21,23 @@ public class UHNode extends IntegerHeap{
 		LQ = new UHNode[max + 1];
 	}
 	
-	/*private void rangeCheck(int x) {
-		assert compareUnsignedInt(x, max) <= 0;
-	}*/
-	
-	/*private void minCheck() {
-		if (!HQ.isEmpty()) {
-			int H = HQ.getMinHash();
-			int L = LQ[H].getMinHash();
-			int x = (H << shift) + L;
-			assert x != min;
-		}
-	}*/
-	
 	public boolean isEmpty() {
-		rwl.readLock().lock();
-		try{
+		synchronized(this){
 			if (isEmpty) {
 				assert best ==  null;
 			}
 			return isEmpty;
-		} finally {
-			rwl.readLock().unlock();
 		}
 	}
 	
 	public int getMinHash() {
-		rwl.readLock().lock();
-		try{
 			assert isEmpty == false;
 			return min;
-		} finally {
-			rwl.readLock().unlock();
-		}
 	}
 	
 	public UHList getMinElements() {
-		rwl.readLock().lock();
-		try{
-			assert isEmpty == false;
-			return minElements;
-		} finally {
-			rwl.readLock().unlock();
-		}
+		assert isEmpty == false;
+		return minElements;
 	}
 	
 	public static int compareUnsignedInt(int a, int b) {
@@ -78,36 +49,31 @@ public class UHNode extends IntegerHeap{
 		UHNode node = this;
 		int H, L;
 		while (true) {
-			//node.rangeCheck(x);
-			ReentrantReadWriteLock lock = node.rwl;
-			lock.writeLock().lock();
-			try{
+			synchronized(node){
 				if(node.isEmpty() || node.min == x){
-					node.min = x;
-					node.minElements.addNewElement(value);
-					node.isEmpty = false;
-					return;
+						node.min = x;
+						node.minElements.addNewElement(value);
+						node.isEmpty = false;
+						return;
 				} else {
-					if (compareUnsignedInt(x, node.min) < 0) {
-						int aux = node.min; node.min = x; x = aux;
-						Object aux2 = node.minElements; node.minElements = new UHList(value); value = aux2; 
-					}
-					assert node.min != x;
-					H = x >>> node.shift;
-					L = x ^ (H << node.shift);
-					UHNode child = node.LQ[H];
-					if (child == null) {
-						node.HQ.add(H);
-						child = new UHNode(order - 1);
-						node.LQ[H] = child;
-					}
-					node = child;
-					x = L;
+						if (compareUnsignedInt(x, node.min) < 0) {
+							int aux = node.min; node.min = x; x = aux;
+							Object aux2 = node.minElements; node.minElements = new UHList(value); value = aux2; 
+						}
+						assert node.min != x;
+						H = x >>> node.shift;
+						L = x ^ (H << node.shift);
+						UHNode child = node.LQ[H];
+					
+						if (child == null) {
+							node.HQ.add(H);
+							child = new UHNode(order - 1);
+							node.LQ[H] = child;
+						}
+						node = child;
+						x = L;
 				}
-			} finally {
-				lock.writeLock().unlock();
-			}
-			//node.minCheck();
+			} 
 		}
 	}
 	
@@ -121,43 +87,41 @@ public class UHNode extends IntegerHeap{
 		UHNode node = this;
 		int H, L;
 		while(true) {
-			ReentrantReadWriteLock lock = node.rwl;
-			lock.readLock().lock();
-			try{
-				if (node.best != null && node.best.equals(value)) {
-					node.best.incr();
-					if (parent != null){
-						parent.updateBest(node.best);
-					}
-					return true;
-				}
-				//node.rangeCheck(x);
-				if(node.isEmpty()) {
-					return false;
-				} else if (node.min == x) {
-					return node.minElements.contains(value, this);
-				} else {
-					H = x >>> node.shift;
-					L = x ^ (H << node.shift);		
-					UHNode child = node.LQ[H];
-					if (child == null) {
-						return false;
-					} else {
-						parent = node;
-						node = child;
-						x = L;
+			if (node.best != null) {
+				synchronized(node.best) {
+					 if(node.best.equals(value)) {
+						node.best.incr();
+						if (parent != null){
+							parent.updateBest(node.best);
+						}
+						return true;
 					}
 				}
-			} finally {
-				lock.readLock().unlock();
 			}
+			if(node.isEmpty()) {
+				return false;
+			} else if (node.min == x) {
+				synchronized (node.minElements) {
+					return node.minElements.contains(value, this);
+				}
+			} else {
+				H = x >>> node.shift;
+				L = x ^ (H << node.shift);		
+				UHNode child = node.LQ[H];
+				if (child == null) {
+					return false;
+				} else {
+					parent = node;
+					node = child;
+					x = L;
+				}
+			}
+			
 		}
 	}
 	
 	public boolean remove(int x, Object value) {
-		//rangeCheck(x);
-		rwl.writeLock().lock();
-		try {
+		synchronized(this){
 			if (best != null && best.equals(value)) best = null;
 			
 			if (isEmpty()) return false;
@@ -174,19 +138,15 @@ public class UHNode extends IntegerHeap{
 				}
 				if (!success) {
 					assert false;
-				//	minCheck();
 					return false;
 				} else {
 					if(!minElements.isEmpty()) {
-					//	minCheck();
 						return true;
 					} else {
 						if (HQ.isEmpty()) {
 							isEmpty = true;
-						//	minCheck();
 							return true;
 						} else {
-						//	minCheck();
 							H = HQ.getMinHash();
 							UHNode child = LQ[H];
 							L = child.getMinHash();
@@ -208,10 +168,7 @@ public class UHNode extends IntegerHeap{
 					HQ.remove(H, H);
 				}
 			}
-			//minCheck();
 			return success;
-		}finally {
-			rwl.writeLock().unlock();
 		}
 	}
 	
