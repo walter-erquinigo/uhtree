@@ -34,11 +34,8 @@ public class UHNode extends IntegerHeap {
 	 * @see pucp.wallace.IntegerHeap#isEmpty()
 	 */
 	public boolean isEmpty() {
-		synchronized (this) {
-			if (isEmpty)
-				assert best == null;
-			return isEmpty;
-		}
+		assert !isEmpty || isEmpty && best == null;
+		return isEmpty;
 	}
 
 	/*
@@ -207,9 +204,6 @@ public class UHNode extends IntegerHeap {
 					success = minElements.remove(value);
 				}
 				if (!success) {
-					assert false; // Esta linea nunca deberia ocurrir, es por
-									// sanidad para detectar errores de
-									// concurrencia.
 					return false;
 				} else // Se elimino satisfactoriamente
 				{

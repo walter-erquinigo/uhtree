@@ -12,8 +12,8 @@ public class ConcurrentTester {
 															// trabajadores por
 															// hilo.
 	static final int innerOps = 5000; // Numero de operaciones por trabajador.
-	static final int putPct = 30; // Porcentaje de inserciones.
-	static final int searchPct = 90; // searchPct - putPct = porcentaje de
+	static final int putPct = 10; // Porcentaje de inserciones.
+	static final int searchPct = 99; // searchPct - putPct = porcentaje de
 										// busquedas.
 	static final int order = 4; // Orden del UHTree.
 
@@ -33,10 +33,10 @@ public class ConcurrentTester {
 	public void testConcurrent() {
 		final UHTree map = UHTreeCreator.getNewUHTree(order);
 		final Random random = new Random(0);
-		final int keyRange = 10000; // Rango de los elementos a ingresar en el
+		final int keyRange = 130000; // Rango de los elementos a ingresar en el
 									// UHTree.
 		final RandomDistribution.Zipf zipf = new RandomDistribution.Zipf(
-				random, 0, keyRange, 1 / 0.9);
+				random, 0, keyRange, 1.4);
 
 		long t1 = System.nanoTime();
 		for (int outer = 0; outer < outerPasses; ++outer) {
