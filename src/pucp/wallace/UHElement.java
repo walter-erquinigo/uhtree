@@ -26,20 +26,6 @@ public class UHElement {
 	}
 
 	/*
-	 * Decae exponencialmente el contador.
-	 */
-	public void decay() {
-		if (count >= (1 << 24))
-			count >>>= 4;
-		else if (count >= (1 << 16))
-			count >>>= 3;
-		else if (count >= (1 << 8))
-			count >>>= 2;
-		else
-			count >>>= 1;
-	}
-
-	/*
 	 * Devuelve el value asociado.
 	 */
 	public Object getValue() {
