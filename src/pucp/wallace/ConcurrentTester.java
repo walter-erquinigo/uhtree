@@ -2,16 +2,24 @@ package pucp.wallace;
 
 import java.util.Random;
 
-public class ConcurrentTester {
-	static final int workers = 10000;
-	static final int numThreads = 4;
-	static final int outerPasses = workers / numThreads;
-    static final int innerOps = 5000;
-    static final int putPct = 30;
-    static final int searchPct = 90;
-    static final int order = 4;
+/*
+ * Clase de test concurrente del UHTree usando distribucion de Zipf para generar los datos.
+ */
+public class ConcurrentTester 
+{
+	static final int workers = 10000; // Numero de trabajadores sobre el UHTree.
+	static final int numThreads = 4; // Numero de hilos concurrents.
+	static final int outerPasses = workers / numThreads; // Numero de trabajadores por hilo.
+    static final int innerOps = 5000; // Numero de operaciones por trabajador.
+    static final int putPct = 30; // Porcentaje de inserciones.
+    static final int searchPct = 90; // searchPct - putPct = porcentaje de busquedas.
+    static final int order = 4; // Orden del UHTree.
 
-	private static int getHash(int x, int bits) {
+    /*
+     *  Obtiene el hash de un entero para un rango de 2^2 bits
+     */
+	private static int getHash(int x, int bits) 
+	{
 		int mask = (int)((1L << (1 << bits)) - 1);
 		return x & mask;
 	}
@@ -24,7 +32,7 @@ public class ConcurrentTester {
     public void testConcurrent() {
         final UHTree map = UHTreeCreator.getNewUHTree(order);
         final Random random = new Random(0);
-        final int keyRange = 10000;
+        final int keyRange = 10000; // Rango de los elementos a ingresar en el UHTree.
 		final RandomDistribution.Zipf zipf = new RandomDistribution.Zipf(random, 0, keyRange, 1/0.9);
 	
 		long t1 = System.nanoTime();
@@ -50,7 +58,7 @@ public class ConcurrentTester {
             });
         }
         long t2 = System.nanoTime();
-        System.out.println((t2 - t1) / (1000000000.0));
+        System.out.println((t2 - t1) / (1000000000.0) + " segundos.");
         for (int i = 0; i < keyRange; i++)
         	map.remove(getHash(i, order), i);
         assert map.isEmpty();
