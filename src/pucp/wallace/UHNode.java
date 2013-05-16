@@ -4,15 +4,15 @@ package pucp.wallace;
  * Nodo del UHTree.
  */
 public class UHNode extends IntegerHeap {
-	private int min;
+	private volatile int min;
 	private final int order;
 	private final int shift;
 	private final int max;
-	private UHList minElements;
-	private boolean isEmpty;
+	private volatile UHList minElements;
+	private volatile boolean isEmpty;
 	private final IntegerHeap HQ;
-	private UHNode[] LQ;
-	private UHElement best;
+	private volatile UHNode[] LQ;
+	private volatile UHElement best;
 
 	/*
 	 * Crea un UHNode con indices en el rango [0, 2^2^order[. Order es un entero
