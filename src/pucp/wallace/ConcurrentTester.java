@@ -52,7 +52,7 @@ public class ConcurrentTester {
 						} else if (pct < searchPct) {
 							map.contains(hash, key);
 						} else {
-							map.contains(hash, key);
+							map.remove(hash, key);
 						}
 					}
 
