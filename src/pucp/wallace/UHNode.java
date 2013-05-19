@@ -123,9 +123,8 @@ public class UHNode extends IntegerHeap {
 	 * Actualiza el elemento mas comun del arbol.
 	 */
 	public void updateBest(UHElement candidate) {
-		if (best == null || candidate.getCount() > best.getCount()) {
-			best = candidate;
-		}
+		UHElement b = best;
+		if (b == null || candidate.getCount() > b.getCount()) best = candidate;
 	}
 
 	/*
@@ -136,15 +135,15 @@ public class UHNode extends IntegerHeap {
 		int H, L;
 		// Realiza la busqueda en el arbol iterativamente.
 		while (true) {
-			if (node.best != null) {
-				synchronized (node.best) {
-					if (node.best.equals(value)) // Si el elemento buscado es el
-													// mejor elemento del nodo
-													// actual.
+			UHElement b = node.best;
+			if (b != null) { synchronized (b) {
+					if (b.equals(value)) // Si el elemento buscado es el
+										 // mejor elemento del nodo
+										 // actual.
 					{
-						node.best.incr();
+						b.incr();
 						if (parent != null)
-							parent.updateBest(node.best);
+							parent.updateBest(b);
 						return true;
 					}
 				}
