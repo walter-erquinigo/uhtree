@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Clase que para cierto hash, mantiene todos los values asociados.
  */
 public class UHList {
-	private ConcurrentHashMap<UHElement, UHElement> set = new ConcurrentHashMap<>(
+	private ConcurrentHashMap<UHElement, UHElement> set = new ConcurrentHashMap<UHElement, UHElement>(
 			2);
 	private UHElement best = null;
 

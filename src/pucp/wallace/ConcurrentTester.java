@@ -1,14 +1,17 @@
 package pucp.wallace;
 
+import java.util.ArrayList;
 import java.util.Random;
+
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 /*
  * Clase de test concurrente del UHTree usando distribucion de Zipf para generar los datos.
  */
 public class ConcurrentTester {
 	static final int workers = 10000; // Numero de trabajadores sobre el UHTree.
-	static final int numThreads = 4; // Numero de hilos concurrents.
-	static final int outerPasses = workers / numThreads; // Numero de
+	static int numThreads;// = 4; // Numero de hilos concurrents.
+	static int outerPasses;// = workers / numThreads; // Numero de
 															// trabajadores por
 															// hilo.
 	static final int innerOps = 5000; // Numero de operaciones por trabajador.
@@ -27,10 +30,13 @@ public class ConcurrentTester {
 
 	public static void main(String[] args) {
 		ConcurrentTester tester = new ConcurrentTester();
-		tester.testConcurrent();
+		numThreads = Integer.parseInt(args[0]);
+		outerPasses = workers / numThreads;
+		boolean withoutRemove = args[1].equals("without_remove");
+		tester.testConcurrent(withoutRemove);
 	}
 
-	public void testConcurrent() {
+	public void testConcurrent(final boolean withoutRemove) {
 		final UHTree map = UHTreeCreator.getNewUHTree(order);
 		final Random random = new Random(0);
 		final int keyRange = 130000; // Rango de los elementos a ingresar en el
@@ -49,7 +55,7 @@ public class ConcurrentTester {
 						final int hash = getHash(key, order);
 						if (pct < putPct) {
 							map.add(hash, key);
-						} else if (pct < searchPct) {
+						} else if (pct < searchPct || withoutRemove) {
 							map.contains(hash, key);
 						} else {
 							map.remove(hash, key);
