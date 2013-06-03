@@ -10,12 +10,12 @@ import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
  */
 public class ConcurrentTester {
 	static final int workers = 10000; // Numero de trabajadores sobre el UHTree.
-	static int numThreads;// = 4; // Numero de hilos concurrents.
-	static int outerPasses;// = workers / numThreads; // Numero de
+	static int numThreads = 4;// = 4; // Numero de hilos concurrents.
+	static int outerPasses = 10000;// = workers / numThreads; // Numero de
 															// trabajadores por
 															// hilo.
 	static final int innerOps = 5000; // Numero de operaciones por trabajador.
-	static final int putPct = 10; // Porcentaje de inserciones.
+	static final int putPct = 0; // Porcentaje de inserciones.
 	static final int searchPct = 99; // searchPct - putPct = porcentaje de
 										// busquedas.
 	static final int order = 4; // Orden del UHTree.
@@ -30,20 +30,20 @@ public class ConcurrentTester {
 
 	public static void main(String[] args) {
 		ConcurrentTester tester = new ConcurrentTester();
-		numThreads = Integer.parseInt(args[0]);
+		/*numThreads = Integer.parseInt(args[0]);
 		outerPasses = workers / numThreads;
-		boolean withoutRemove = args[1].equals("without_remove");
-		tester.testConcurrent(withoutRemove);
+		boolean withoutRemove = args[1].equals("without_remove");*/
+		tester.testConcurrent(true);
 	}
 
 	public void testConcurrent(final boolean withoutRemove) {
 		final UHTree map = UHTreeCreator.getNewUHTree(order);
 		final Random random = new Random(0);
-		final int keyRange = 130000; // Rango de los elementos a ingresar en el
+		final int keyRange = 500000; // Rango de los elementos a ingresar en el
 									// UHTree.
 		final RandomDistribution.Zipf zipf = new RandomDistribution.Zipf(
-				random, 0, keyRange, 1.4);
-
+				random, 0, keyRange, 1.3);
+		for(int i = 0; i < keyRange; i++) map.add(i, i);
 		long t1 = System.nanoTime();
 		for (int outer = 0; outer < outerPasses; ++outer) {
 			ParUtil.parallel(numThreads, new Runnable() {
@@ -62,7 +62,7 @@ public class ConcurrentTester {
 						}
 					}
 
-					System.out.println("Finished pass.");
+					//System.out.println("Finished pass.");
 				}
 			});
 		}

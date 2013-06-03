@@ -11,7 +11,7 @@ public class UHNode extends IntegerHeap {
 	private volatile UHList minElements;
 	private volatile boolean isEmpty;
 	private final IntegerHeap HQ;
-	private volatile UHNode[] LQ;
+	private UHNode[] LQ;
 	private volatile UHElement best;
 
 	/*
