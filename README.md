@@ -13,4 +13,4 @@ For other data distributions or for less frequent elements, it's still O(log(log
 
 If you want to see how to test it, just read the ConcurrentTester class, which is the main tester for this tree.
 
-This was part of a research I did in the Pontifical Catholic University of Pery during my undergrad. It was declared as the best undergrad research ever at my faculty :)
+This was part of a research I did in the Pontifical Catholic University of Peru during my undergrad. It was declared as the best undergrad research ever at my faculty :)
